@@ -1,87 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Calculadora de Dominio y Rango</title>
-  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    input, button {
-      padding: 10px;
-      width: 100%;
-      margin: 10px 0;
-      font-size: 1em;
-    }
-    #resultado {
-      margin-top: 20px;
-      padding: 10px;
-      background: #e0f7fa;
-      border-radius: 5px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Dominio y Rango de una Función</title>
+<style>
+body { font-family: Arial; background-color: #f0f8ff; text-align: center; padding: 20px; }
+input, button { padding: 10px; margin: 10px; font-size: 16px; }
+#resultado { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+</style>
 </head>
 <body>
-
-<div class="container">
-  <h2>Calculadora de Dominio y Rango</h2>
-  <label for="funcion">Escribe una función (en términos de x):</label>
-  <input type="text" id="funcion" placeholder="Ej: 1/x, sqrt(x), x^2, ln(x)">
-  <button onclick="calcularDominioYRango()">Calcular</button>
-
-  <div id="resultado"></div>
-</div>
-
+<h2>Calculadora de Dominio y Rango</h2>
+<p>Escribe una función de x, por ejemplo: <strong>(x*x - 4)/(x - 2)</strong> o <strong>Math.sqrt(x)</strong></p>
+<input type="text" id="funcion" placeholder="Escribe f(x)" size="40">
+<br>
+<button onclick="calcular()">Calcular</button>
+<div id="resultado"></div>
 <script>
-  function calcularDominioYRango() {
-    const f = document.getElementById('funcion').value;
-    const expr = math.parse(f);
-    const xVals = math.range(-100, 100, 0.5).toArray();
-    let yVals = [];
-
-    try {
-      for (let x of xVals) {
-        try {
-          const y = expr.evaluate({x});
-          if (isFinite(y)) {
-            yVals.push(y);
-          }
-        } catch (e) {
-          // Ignorar valores no definidos
-        }
-      }
-
-      if (yVals.length === 0) {
-        document.getElementById('resultado').innerHTML =
-          `<strong>Error:</strong> No se pudo evaluar la función.`;
-        return;
-      }
-
-      const minY = Math.min(...yVals);
-      const maxY = Math.max(...yVals);
-
-      document.getElementById('resultado').innerHTML = `
-        <p><strong>Dominio estimado:</strong> Todos los valores de x donde la función está definida en el intervalo [-100, 100].</p>
-        <p><strong>Rango estimado:</strong> Aproximadamente de ${minY.toFixed(2)} a ${maxY.toFixed(2)}</p>
-      `;
-    } catch (e) {
-      document.getElementById('resultado').innerHTML =
-        `<strong>Error:</strong> Verifica que la función esté bien escrita.`;
-    }
-  }
+function calcular() {
+const fxInput = document.getElementById("funcion").value;
+const resultado = document.getElementById("resultado");
+let dominio = [];
+let rango = [];
+for (let x = -100; x <= 100; x += 0.5) {
+try {
+const f = new Function("x", "return " + fxInput + ";"); const y = f(x);
+if (isFinite(y)) {
+dominio.push(x);
+rango.push(y);
+}
+} catch (e) {
+// error en función (por ejemplo división por 0)
+}
+}
+const minRango = Math.min(...rango);
+const maxRango = Math.max(...rango);
+resultado.innerHTML = `
+<h3>Resultado</h3>
+<p><strong>Dominio (aproximado):</strong> desde ${Math.min(...dominio)} hasta ${Math.max(...dominio)}</p>
+<p><strong>Rango (aproximado):</strong> desde ${minRango} hasta ${maxRango}</p>
+<p><em>* Estimado evaluando de -100 a 100</em></p>
+`;
+}
 </script>
-
 </body>
 </html>
-
