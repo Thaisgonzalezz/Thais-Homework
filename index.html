@@ -2,59 +2,86 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Ecuaciones: Dominio y Rango</title>
-  <!-- Cargar MathJax para renderizar ecuaciones -->
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+  <title>Calculadora de Dominio y Rango</title>
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.1/lib/browser/math.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
-      background-color: #f4f4f4;
-    }
-    h1 {
-      text-align: center;
-    }
-    .card {
-      background: white;
+      background: #f2f2f2;
       padding: 20px;
-      margin: 15px auto;
-      border-radius: 10px;
+    }
+    .container {
+      background: white;
       max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    .title {
-      font-weight: bold;
-      margin-bottom: 10px;
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin: 10px 0;
+      font-size: 1em;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e0f7fa;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Dominio y Rango de Ecuaciones</h1>
+<div class="container">
+  <h2>Calculadora de Dominio y Rango</h2>
+  <label for="funcion">Escribe una función (en términos de x):</label>
+  <input type="text" id="funcion" placeholder="Ej: 1/x, sqrt(x), x^2, ln(x)">
+  <button onclick="calcularDominioYRango()">Calcular</button>
 
-  <div class="card">
-    <div class="title">1. \( f(x) = x^2 \)</div>
-    <p><strong>Dominio:</strong> \( (-\infty, \infty) \)</p>
-    <p><strong>Rango:</strong> \( [0, \infty) \)</p>
-  </div>
+  <div id="resultado"></div>
+</div>
 
-  <div class="card">
-    <div class="title">2. \( f(x) = \sqrt{x} \)</div>
-    <p><strong>Dominio:</strong> \( [0, \infty) \)</p>
-    <p><strong>Rango:</strong> \( [0, \infty) \)</p>
-  </div>
+<script>
+  function calcularDominioYRango() {
+    const f = document.getElementById('funcion').value;
+    const expr = math.parse(f);
+    const xVals = math.range(-100, 100, 0.5).toArray();
+    let yVals = [];
 
-  <div class="card">
-    <div class="title">3. \( f(x) = \frac{1}{x} \)</div>
-    <p><strong>Dominio:</strong> \( (-\infty, 0) \cup (0, \infty) \)</p>
-    <p><strong>Rango:</strong> \( (-\infty, 0) \cup (0, \infty) \)</p>
-  </div>
+    try {
+      for (let x of xVals) {
+        try {
+          const y = expr.evaluate({x});
+          if (isFinite(y)) {
+            yVals.push(y);
+          }
+        } catch (e) {
+          // Ignorar valores no definidos
+        }
+      }
 
-  <div class="card">
-    <div class="title">4. \( f(x) = \ln(x) \)</div>
-    <p><strong>Dominio:</strong> \( (0, \infty) \)</p>
-    <p><strong>Rango:</strong> \( (-\infty, \infty) \)</p>
-  </div>
+      if (yVals.length === 0) {
+        document.getElementById('resultado').innerHTML =
+          `<strong>Error:</strong> No se pudo evaluar la función.`;
+        return;
+      }
+
+      const minY = Math.min(...yVals);
+      const maxY = Math.max(...yVals);
+
+      document.getElementById('resultado').innerHTML = `
+        <p><strong>Dominio estimado:</strong> Todos los valores de x donde la función está definida en el intervalo [-100, 100].</p>
+        <p><strong>Rango estimado:</strong> Aproximadamente de ${minY.toFixed(2)} a ${maxY.toFixed(2)}</p>
+      `;
+    } catch (e) {
+      document.getElementById('resultado').innerHTML =
+        `<strong>Error:</strong> Verifica que la función esté bien escrita.`;
+    }
+  }
+</script>
 
 </body>
 </html>
+
