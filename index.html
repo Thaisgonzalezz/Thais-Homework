@@ -2,55 +2,97 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Dominio y Rango de una Función</title>
+  <title>Gráfica de Ecuaciones</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
   <style>
-    body { font-family: Arial; background-color: #f0f8ff; text-align: center; padding: 20px; }
-    input, button { padding: 10px; margin: 10px; font-size: 16px; }
-    #resultado { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    body { font-family: Arial; padding: 20px; }
+    input, button { margin: 10px 0; padding: 8px; width: 100%; }
+    canvas { background: #f9f9f9; margin-top: 20px; }
   </style>
 </head>
 <body>
+  <h2>Gráfica de Funciones Lineales y Cuadráticas</h2>
 
-  <h2>Calculadora de Dominio y Rango</h2>
+  <label>Función lineal (ej: 2*x + 3):</label>
+  <input id="lineal" value="2*x + 3">
 
-  <p>Escribe una función de x, por ejemplo: <strong>(x*x - 4)/(x - 2)</strong> o <strong>Math.sqrt(x)</strong></p>
-  
-  <input type="text" id="funcion" placeholder="Escribe f(x)" size="40">
-  <br>
-  <button onclick="calcular()">Calcular</button>
+  <label>Función cuadrática (ej: x^2 - 4*x + 1):</label>
+  <input id="cuadratica" value="x^2 - 4*x + 1">
 
-  <div id="resultado"></div>
+  <button onclick="graficar()">Graficar</button>
+
+  <p id="resultados"></p>
+
+  <canvas id="grafica" width="800" height="400"></canvas>
+
   <script>
-    function calcular() {
-      const fxInput = document.getElementById("funcion").value;
-      const resultado = document.getElementById("resultado");
-      let dominio = [];
-      let rango = [];
+    function graficar() {
+      const linealInput = document.getElementById('lineal').value;
+      const cuadraticaInput = document.getElementById('cuadratica').value;
 
-      for (let x = -100; x <= 100; x += 0.5) {
+      const x = [];
+      const yLineal = [];
+      const yCuadratica = [];
+
+      for (let i = -20; i <= 20; i += 0.1) {
+        x.push(i);
+        const scope = { x: i };
         try {
-          const f = new Function("x", "return " + fxInput + ";");
-          const y = f(x);
-          if (isFinite(y)) {
-            dominio.push(x);
-            rango.push(y);
-          }
-        } catch (e) {
-          // error en función (por ejemplo división por 0)
+          yLineal.push(math.evaluate(linealInput, scope));
+          yCuadratica.push(math.evaluate(cuadraticaInput, scope));
+        } catch (err) {
+          alert("Error en la fórmula. Asegúrate de escribirla correctamente.");
+          return;
         }
       }
 
-      const minRango = Math.min(...rango);
-      const maxRango = Math.max(...rango);
+      const minLineal = Math.min(...yLineal).toFixed(2);
+      const maxLineal = Math.max(...yLineal).toFixed(2);
+      const minCuadratica = Math.min(...yCuadratica).toFixed(2);
+      const maxCuadratica = Math.max(...yCuadratica).toFixed(2);
 
- resultado.innerHTML = `
-        <h3>Resultado</h3>
-        <p><strong>Dominio (aproximado):</strong> desde ${Math.min(...dominio)} hasta ${Math.max(...dominio)}</p>
-        <p><strong>Rango (aproximado):</strong> desde ${minRango} hasta ${maxRango}</p>
-        <p><em>* Estimado evaluando de -100 a 100</em></p>
-      `;
+      document.getElementById('resultados').innerHTML =
+        `<b>Dominio:</b> [-20, 20]<br>
+         <b>Rango Lineal:</b> [${minLineal}, ${maxLineal}]<br>
+         <b>Rango Cuadrática:</b> [${minCuadratica}, ${maxCuadratica}]`;
+
+      const ctx = document.getElementById('grafica').getContext('2d');
+      if (window.miGrafica) window.miGrafica.destroy(); // Eliminar anterior
+      window.miGrafica = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: x,
+          datasets: [
+            {
+              label: 'Función Lineal',
+              data: yLineal,
+              borderColor: 'blue',
+              borderWidth: 2,
+              fill: false
+            },
+            {
+              label: 'Función Cuadrática',
+              data: yCuadratica,
+              borderColor: 'red',
+              borderWidth: 2,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'top' },
+            title: { display: true, text: 'Gráfica de Ecuaciones' }
+          },
+          scales: {
+            x: { title: { display: true, text: 'x' } },
+            y: { title: { display: true, text: 'y' } }
+          }
+        }
+      });
     }
   </script>
-
 </body>
 </html>
